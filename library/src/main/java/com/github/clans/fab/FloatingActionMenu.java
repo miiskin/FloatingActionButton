@@ -23,6 +23,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.AnticipateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
@@ -92,6 +93,8 @@ public class FloatingActionMenu extends ViewGroup {
     private Animation mMenuButtonHideAnimation;
     private Animation mImageToggleShowAnimation;
     private Animation mImageToggleHideAnimation;
+    private Animation mMenuButtonPulseAnimation;
+    private Animation mImageTogglePulseAnimation;
     private boolean mIsMenuButtonAnimationRunning;
     private boolean mIsSetClosedOnTouchOutside;
     private int mOpenDirection;
@@ -791,6 +794,10 @@ public class FloatingActionMenu extends ViewGroup {
         return mImageToggle;
     }
 
+    public FloatingActionButton getMenuButton() {
+        return mMenuButton;
+    }
+
     public void setIconToggleAnimatorSet(AnimatorSet toggleAnimatorSet) {
         mIconToggleSet = toggleAnimatorSet;
     }
@@ -968,6 +975,39 @@ public class FloatingActionMenu extends ViewGroup {
         removeView(fab.getLabelView());
         removeView(fab);
         mButtonsCount--;
+    }
+
+    /**
+     * This method will make the button including the icon within it pulse.
+     */
+    public void startPulsing(){
+        // It is necessary with two separate ScaleAnimations; one for the background and one for the icon.
+        // If only using one, it was not looking as wanted.
+        mMenuButtonPulseAnimation = new ScaleAnimation(1f, 0.5f, 1f, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        mMenuButtonPulseAnimation.setDuration(1000);
+        mMenuButtonPulseAnimation.setRepeatCount(Animation.INFINITE);
+        mMenuButtonPulseAnimation.setRepeatMode(Animation.REVERSE);
+
+        mImageTogglePulseAnimation = new ScaleAnimation(1f, 0.5f, 1f, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        mImageTogglePulseAnimation.setDuration(1000);
+        mImageTogglePulseAnimation.setRepeatCount(Animation.INFINITE);
+        mImageTogglePulseAnimation.setRepeatMode(Animation.REVERSE);
+
+        getMenuButton().startAnimation(mMenuButtonPulseAnimation);
+        getMenuIconView().startAnimation(mImageTogglePulseAnimation);
+    }
+
+    /**
+     * This will stop the pulsing effect, if it has been started. This method can be called even though
+     * the {@link #startPulsing()} has not been called.
+     */
+    public void stopPulsing(){
+        if (mMenuButtonPulseAnimation != null){
+            mMenuButtonPulseAnimation.setRepeatCount(0);
+            mImageTogglePulseAnimation.setRepeatCount(0);
+        }
+        mMenuButtonPulseAnimation = null;
+        mImageTogglePulseAnimation = null;
     }
 
     public void addMenuButton(FloatingActionButton fab, int index) {
