@@ -14,7 +14,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -980,18 +979,22 @@ public class FloatingActionMenu extends ViewGroup {
     /**
      * This method will make the button including the icon within it pulse.
      */
-    public void startPulsing(){
-        // It is necessary with two separate ScaleAnimations; one for the background and one for the icon.
-        // If only using one, it was not looking as wanted.
-        mMenuButtonPulseAnimation = new ScaleAnimation(1f, 0.5f, 1f, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        mMenuButtonPulseAnimation.setDuration(1000);
-        mMenuButtonPulseAnimation.setRepeatCount(Animation.INFINITE);
-        mMenuButtonPulseAnimation.setRepeatMode(Animation.REVERSE);
+    public void startSeeMePulseAnimation(){
+        startSeeMeAnimation(defaultPulseAnimation(), defaultPulseAnimation());
+    }
 
-        mImageTogglePulseAnimation = new ScaleAnimation(1f, 0.5f, 1f, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        mImageTogglePulseAnimation.setDuration(1000);
-        mImageTogglePulseAnimation.setRepeatCount(Animation.INFINITE);
-        mImageTogglePulseAnimation.setRepeatMode(Animation.REVERSE);
+    /**
+     * This will start the given animations on the menu button and its icon, respectively.
+     *
+     * It is necessary with two separate ScaleAnimations; one for the background and one for the icon.
+     * If only using one, it was not looking as wanted.
+     *
+     * @param menuButtonAnimation - animation for making the button background pulse
+     * @param imageToggleAnimation - animation for making the icon in the button pulse
+     */
+    public void startSeeMeAnimation(Animation menuButtonAnimation, Animation imageToggleAnimation){
+        mMenuButtonPulseAnimation = menuButtonAnimation;
+        mImageTogglePulseAnimation = imageToggleAnimation;
 
         getMenuButton().startAnimation(mMenuButtonPulseAnimation);
         getMenuIconView().startAnimation(mImageTogglePulseAnimation);
@@ -999,15 +1002,23 @@ public class FloatingActionMenu extends ViewGroup {
 
     /**
      * This will stop the pulsing effect, if it has been started. This method can be called even though
-     * the {@link #startPulsing()} has not been called.
+     * the {@link #startSeeMeAnimation(Animation, Animation)} or {@link #startSeeMePulseAnimation()} has not been called.
      */
-    public void stopPulsing(){
+    public void stopSeeMeAnimation(){
         if (mMenuButtonPulseAnimation != null){
             mMenuButtonPulseAnimation.setRepeatCount(0);
             mImageTogglePulseAnimation.setRepeatCount(0);
         }
         mMenuButtonPulseAnimation = null;
         mImageTogglePulseAnimation = null;
+    }
+
+    private ScaleAnimation defaultPulseAnimation() {
+        ScaleAnimation pulseAnimation = new ScaleAnimation(1f, 0.5f, 1f, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        pulseAnimation.setDuration(1000);
+        pulseAnimation.setRepeatCount(Animation.INFINITE);
+        pulseAnimation.setRepeatMode(Animation.REVERSE);
+        return pulseAnimation;
     }
 
     public void addMenuButton(FloatingActionButton fab, int index) {
